@@ -8,43 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2canvas for JPG Download -->
+    <!-- html2canvas for JPG/PDF Download -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printable-report, #printable-report * {
-                visibility: visible;
-            }
-            #printable-report {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100% !important;
-                border: none !important;
-                box-shadow: none !important;
-                transform: none !important;
-            }
-            #printable-parade-report, #printable-parade-report * {
-                visibility: visible;
-            }
-            #printable-parade-report {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100% !important;
-                border: none !important;
-                box-shadow: none !important;
-                transform: none !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            #sig-canvas {
-                border: none !important;
-            }
+            body * { visibility: hidden; }
+            #printable-report, #printable-report * { visibility: visible; }
+            #printable-report { position: absolute; left: 0; top: 0; width: 100% !important; border: none !important; box-shadow: none !important; transform: none !important; }
+            #printable-parade-report, #printable-parade-report * { visibility: visible; }
+            #printable-parade-report { position: absolute; left: 0; top: 0; width: 100% !important; border: none !important; box-shadow: none !important; transform: none !important; }
+            #printable-leave-report, #printable-leave-report * { visibility: visible; }
+            #printable-leave-report { position: absolute; left: 0; top: 0; width: 100% !important; border: none !important; box-shadow: none !important; transform: none !important; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -79,162 +54,29 @@
         <section id="vehicle-report-view" class="tab-content hidden space-y-6">
             <div class="flex flex-wrap justify-between items-center bg-white p-3 rounded-xl border border-gray-200 shadow-sm no-print gap-2">
                 <button onclick="backToSections()" class="text-xs text-indigo-600 font-bold flex items-center space-x-1">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>නැවත Sections වෙත</span>
+                    <i class="fa-solid fa-arrow-left"></i><span>නැවත Sections වෙත</span>
                 </button>
                 <div class="flex items-center space-x-2 flex-wrap gap-1">
                     <span id="current-section-title" class="text-xs font-bold text-gray-700"></span>
-                    <button onclick="saveVehicleReportData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
-                        <i class="fa-solid fa-floppy-disk text-[10px]"></i>
-                        <span>Save</span>
-                    </button>
-                    <button onclick="printPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
-                        <i class="fa-solid fa-file-pdf text-[10px]"></i>
-                        <span>PDF</span>
-                    </button>
-                    <button onclick="downloadJPG()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
-                        <i class="fa-solid fa-file-image text-[10px]"></i>
-                        <span>JPG</span>
-                    </button>
+                    <button onclick="saveVehicleReportData()" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">Save</button>
+                    <button onclick="window.print()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">PDF</button>
                 </div>
             </div>
-
-            <!-- Input & Data Management Section -->
             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 no-print">
-                <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-                    <div class="flex items-center space-x-2">
-                        <label for="report-date-top" class="text-xs font-bold text-indigo-900 uppercase tracking-wider">වාර්තා දිනය:</label>
-                        <input type="date" id="report-date-top" onchange="syncDate(this.value)" class="text-xs font-bold border border-gray-300 rounded-lg px-2 py-1 bg-gray-50 focus:outline-none">
-                    </div>
-                    <button onclick="openVehicleModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1.5">
-                        <i class="fa-solid fa-plus text-[11px]"></i>
-                        <span>සටහනක් එකතු කරන්න</span>
-                    </button>
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-bold text-indigo-900 uppercase">වාර්තා දිනය:</label>
+                    <input type="date" id="report-date-top" onchange="syncDate(this.value)" class="text-xs font-bold border rounded-lg px-2 py-1 bg-gray-50">
                 </div>
-
-                <!-- Edit Table Container -->
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">දත්ත කළමනාකරණ වගුව (Edit Table View)</h3>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500 font-semibold">Zoom:</span>
-                            <button onclick="zoomEditTable(0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">+</button>
-                            <button onclick="zoomEditTable(-0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">-</button>
-                            <button onclick="resetEditTableZoom()" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">Reset</button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-auto border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-[500px]">
-                        <div id="editable-report-container" class="bg-white p-6 rounded-xl border border-gray-300 shadow-md space-y-4 w-[1120px] transition-transform origin-top-left">
-                            <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
-                                <table class="w-full text-left text-xs border-collapse">
-                                    <thead>
-                                        <tr class="bg-indigo-50 text-indigo-950 font-bold border-b border-gray-300 text-[11px] text-center">
-                                            <th class="p-2 border-r border-gray-300">අ/අ</th>
-                                            <th class="p-2 border-r border-gray-300">වාහන අංකය</th>
-                                            <th class="p-2 border-r border-gray-300">වර්ගය</th>
-                                            <th class="p-2 border-r border-gray-300">අයත් ස්ථානය</th>
-                                            <th class="p-2 border-r border-gray-300">යා කළ ස්ථානය</th>
-                                            <th class="p-2 border-r border-gray-300">පවරා ගත් බව</th>
-                                            <th class="p-2 border-r border-gray-300">රක්ෂණය</th>
-                                            <th class="p-2 border-r border-gray-300">වේලාව</th>
-                                            <th class="p-2 border-r border-gray-300">වැරදි</th>
-                                            <th class="p-2 border-r border-gray-300">වෙනත්</th>
-                                            <th class="p-2">Edit / Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="vehicle-table-body" class="divide-y divide-gray-200 text-[11px] text-center"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Signature Block -->
-                <div class="pt-4 border-t flex justify-end">
-                    <div class="w-80 space-y-1 text-left relative">
-                        <div class="h-20 mb-1 relative flex items-end">
-                            <canvas id="sig-canvas" class="absolute bottom-0 left-0 w-full h-20 border border-dashed border-gray-300 rounded bg-transparent cursor-crosshair"></canvas>
-                            <img id="sig-image-display" class="absolute bottom-0 left-0 max-h-20 object-contain hidden" alt="Signature">
-                        </div>
-                        <div class="flex items-center space-x-2 pb-1">
-                            <button type="button" onclick="clearSignature()" class="text-[10px] bg-gray-200 hover:bg-gray-300 px-2 py-0.5 rounded font-semibold text-gray-700">අත්සන මකන්න</button>
-                            <label class="text-[10px] bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 rounded font-semibold text-indigo-700 cursor-pointer">
-                                අත්සන Upload කරන්න <input type="file" accept="image/*" onchange="uploadSignature(event)" class="hidden">
-                            </label>
-                        </div>
-                        <p class="text-xs font-bold text-gray-600 tracking-widest">........................................................................</p>
-                        <div class="pt-1">
-                            <select id="signature-title" onchange="syncSignatureTitle(this.value)" class="w-full text-xs font-bold text-gray-800 border border-gray-300 rounded bg-gray-50 py-1 focus:ring-1 focus:ring-indigo-500">
-                                <option value="අංශභාර ජ්‍යෙකොනොනි">අංශභාර ජ්‍යෙකොනොනි</option>
-                                <option value="අංශභාර ජ්‍යෙකොනොනි වෙනුවට">අංශභාර ජ්‍යෙකොනොනි වෙනුවට</option>
-                            </select>
-                        </div>
-                        <p class="text-xs font-bold text-gray-800 text-left">ඉංජිසේමු විනයාරක්ෂක අංශය</p>
-                        <p class="text-xs font-bold text-gray-800 text-left">මත්තේගොඩ</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Printable Report Preview -->
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                <div class="flex justify-between items-center no-print">
-                    <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">A4 Landscape Report (PDF Preview)</h3>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs text-gray-500 font-semibold">Zoom:</span>
-                        <button onclick="zoomReport(0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">+</button>
-                        <button onclick="zoomReport(-0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">-</button>
-                        <button onclick="resetZoom()" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">Reset</button>
-                    </div>
-                </div>
-
-                <div class="overflow-auto border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-[600px]">
-                    <div id="printable-report" class="bg-white p-8 rounded-xl border border-gray-300 shadow-md space-y-4 w-[1120px] transition-transform origin-top-left">
-                        <div class="flex justify-between items-start border-b border-gray-300 pb-3 gap-3">
-                            <div class="text-left max-w-xs">
-                                <p class="text-[14px] font-bold text-gray-900 leading-snug">අනෙකුත් යුහ වාහන විස්තරය</p>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <span id="sinhala-date-preview" class="text-[14px] font-bold border border-gray-300 rounded-lg px-3 py-1 bg-gray-50 text-gray-900"></span>
-                            </div>
-                            <div class="text-right max-w-xs">
-                                <p class="text-[14px] font-bold text-indigo-900 leading-snug">ඉංජිසේමු විනයාරක්ෂක අංශය</p>
-                            </div>
-                        </div>
-
-                        <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-indigo-50 text-indigo-950 font-bold border-b border-gray-300 text-[11px] text-center">
-                                        <th class="p-2 border-r border-gray-300">අ/අ</th>
-                                        <th class="p-2 border-r border-gray-300">වාහන අංකය</th>
-                                        <th class="p-2 border-r border-gray-300">වර්ගය</th>
-                                        <th class="p-2 border-r border-gray-300">අයත් ස්ථානය</th>
-                                        <th class="p-2 border-r border-gray-300">යා කළ ස්ථානය</th>
-                                        <th class="p-2 border-r border-gray-300">යුහ/යුහ වෙත පවරා ගත් බව</th>
-                                        <th class="p-2 border-r border-gray-300">රක්ෂණය</th>
-                                        <th class="p-2 border-r border-gray-300">වේලාව</th>
-                                        <th class="p-2 border-r border-gray-300">නිරීක්ෂණය වූ වැරදි</th>
-                                        <th class="p-2">වෙනත්</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="preview-table-body" class="divide-y divide-gray-200 text-[11px] text-center"></tbody>
-                            </table>
-                        </div>
-
-                        <div class="pt-2 pb-2 flex justify-end">
-                            <div class="w-80 space-y-1 text-left relative">
-                                <div class="h-20 mb-1 relative flex items-end">
-                                    <img id="sig-image-preview" class="absolute bottom-0 left-0 max-h-20 object-contain hidden" alt="Signature">
-                                </div>
-                                <p class="text-xs font-bold text-gray-600 tracking-widest">........................................................................</p>
-                                <div class="pt-1">
-                                    <p id="signature-title-preview" class="text-xs font-bold text-gray-800">අංශභාර ජ්‍යෙකොනොනි</p>
-                                </div>
-                                <p class="text-xs font-bold text-gray-800 text-left">ඉංජිසේමු විනයාරක්ෂක අංශය</p>
-                                <p class="text-xs font-bold text-gray-800 text-left">මත්තේගොඩ</p>
-                            </div>
-                        </div>
+                <div class="overflow-auto border rounded-lg p-2 bg-gray-50 max-h-[500px]">
+                    <div id="printable-report" class="bg-white p-6 rounded-xl border shadow-md w-[1120px]">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-indigo-50 text-indigo-950 font-bold border-b text-[11px] text-center">
+                                    <th class="p-2 border-r">අ/අ</th><th class="p-2 border-r">වාහන අංකය</th><th class="p-2 border-r">වර්ගය</th><th class="p-2 border-r">අයත් ස්ථානය</th><th class="p-2 border-r">යා කළ ස්ථානය</th><th class="p-2 border-r">පවරා ගත් බව</th><th class="p-2 border-r">රක්ෂණය</th><th class="p-2 border-r">වේලාව</th><th class="p-2 border-r">වැරදි</th><th class="p-2 border-r">වෙනත්</th><th class="p-2 no-print">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehicle-table-body" class="divide-y text-[11px] text-center"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -244,98 +86,93 @@
         <section id="parade-report-view" class="tab-content hidden space-y-6">
             <div class="flex flex-wrap justify-between items-center bg-white p-3 rounded-xl border border-gray-200 shadow-sm no-print gap-2">
                 <button onclick="backToSections()" class="text-xs text-indigo-600 font-bold flex items-center space-x-1">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>නැවත Sections වෙත</span>
+                    <i class="fa-solid fa-arrow-left"></i><span>නැවත Sections වෙත</span>
                 </button>
                 <div class="flex items-center space-x-2 flex-wrap gap-1">
                     <span id="current-parade-section-title" class="text-xs font-bold text-gray-700"></span>
-                    <button onclick="saveParadeReportData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
-                        <i class="fa-solid fa-floppy-disk text-[10px]"></i>
-                        <span>Save</span>
-                    </button>
-                    <button onclick="printParadePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
-                        <i class="fa-solid fa-file-pdf text-[10px]"></i>
-                        <span>PDF</span>
-                    </button>
-                    <button onclick="downloadParadeJPG()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
-                        <i class="fa-solid fa-file-image text-[10px]"></i>
-                        <span>JPG</span>
+                    <button onclick="saveParadeReportData()" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">Save</button>
+                    <button onclick="window.print()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">PDF / Print</button>
+                    <button type="button" onclick="openAddExtraItemModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold">
+                        <i class="fa-solid fa-plus text-[10px]"></i> විස්තරයක් එකතු කරන්න
                     </button>
                 </div>
             </div>
 
-            <!-- Input & Data Management Section (Parade) -->
             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 no-print">
-                <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-                    <div class="flex items-center space-x-2">
-                        <label for="report-month-top" class="text-xs font-bold text-indigo-900 uppercase tracking-wider">මාසය තෝරන්න:</label>
-                        <input type="month" id="report-month-top" onchange="syncMonth(this.value)" class="text-xs font-bold border border-gray-300 rounded-lg px-2 py-1 bg-gray-50 focus:outline-none">
-                    </div>
-                    <button type="button" onclick="openAddExtraItemModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
-                        <i class="fa-solid fa-plus text-[10px]"></i>
-                        <span>අලුතින් විස්තරයක් එකතු කරන්න</span>
-                    </button>
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-bold text-indigo-900 uppercase">මාසය තෝරන්න:</label>
+                    <input type="month" id="report-month-top" onchange="syncMonth(this.value)" class="text-xs font-bold border rounded-lg px-2 py-1 bg-gray-50">
                 </div>
 
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">දත්ත කළමනාකරණ වගුව (Edit Table View)</h3>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500 font-semibold">Zoom:</span>
-                            <button onclick="zoomParadeEditTable(0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">+</button>
-                            <button onclick="zoomParadeEditTable(-0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">-</button>
-                            <button onclick="resetParadeEditTableZoom()" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">Reset</button>
+                <div class="overflow-auto border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-[550px]">
+                    <div id="printable-parade-report" class="bg-white p-4 rounded-xl border border-gray-300 shadow-md w-[1350px]">
+                        <div class="text-left pb-3 border-b border-gray-300 mb-3">
+                            <h2 id="parade-main-title" class="text-[14px] font-bold text-gray-900"></h2>
                         </div>
-                    </div>
-
-                    <div class="overflow-auto border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-[550px]">
-                        <div id="editable-parade-container" class="bg-white p-4 rounded-xl border border-gray-300 shadow-md w-[1350px] transition-transform origin-top-left">
-                            <div class="overflow-x-auto border border-gray-400">
-                                <table class="w-full text-left text-xs border-collapse">
-                                    <thead>
-                                        <tr class="bg-indigo-50 text-indigo-950 font-bold border-b border-gray-400 text-[10px] text-center" id="edit-table-head"></tr>
-                                    </thead>
-                                    <tbody id="parade-table-body" class="divide-y divide-gray-300 text-[10px] text-center"></tbody>
-                                </table>
-                            </div>
-                            <p class="text-[10px] text-gray-500 mt-2">* දිනයන් මත Touch/Hover කිරීමෙන් අදාළ නිවාඩුව බලාගත හැක. ඕනෑම දිනයකට අදාළ අත්සන යෙදීමට පහළම පේළියේ ඇති අදාළ දින කොටුව මත ක්ලික් කරන්න.</p>
+                        <div class="overflow-x-auto border border-gray-400">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-indigo-50 text-indigo-950 font-bold border-b border-gray-400 text-[10px] text-center" id="edit-table-head"></tr>
+                                </thead>
+                                <tbody id="parade-table-body" class="divide-y divide-gray-300 text-[10px] text-center"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Parade Report Preview -->
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                <div class="flex justify-between items-center no-print">
-                    <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">A4 Landscape Report Preview</h3>
+        <!-- Dynamic Leave Records View Container -->
+        <section id="leave-report-view" class="tab-content hidden space-y-6">
+            <div class="flex flex-wrap justify-between items-center bg-white p-3 rounded-xl border border-gray-200 shadow-sm no-print gap-2">
+                <button onclick="backToSections()" class="text-xs text-indigo-600 font-bold flex items-center space-x-1">
+                    <i class="fa-solid fa-arrow-left"></i><span>නැවත Sections වෙත</span>
+                </button>
+                <div class="flex items-center space-x-2 flex-wrap gap-1">
+                    <span id="current-leave-section-title" class="text-xs font-bold text-gray-700"></span>
+                    <button id="save-lock-btn" onclick="toggleSaveLock()" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">Save & Lock</button>
+                    <button onclick="openDownloadModal()" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1">
+                        <i class="fa-solid fa-share-nodes text-[10px]"></i><span>Share / Download</span>
+                    </button>
+                    <button onclick="openAddLeavePersonModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold">
+                        <i class="fa-solid fa-plus text-[10px]"></i> සාමාජිකයෙක් එකතු කරන්න
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 no-print">
+                <div class="flex justify-between items-center flex-wrap gap-2">
                     <div class="flex items-center space-x-2">
-                        <span class="text-xs text-gray-500 font-semibold">Zoom:</span>
-                        <button onclick="zoomParadeReport(0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">+</button>
-                        <button onclick="zoomParadeReport(-0.1)" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">-</button>
-                        <button onclick="resetParadeZoom()" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">Reset</button>
+                        <label class="text-xs font-bold text-indigo-900 uppercase">මාසය තෝරන්න:</label>
+                        <input type="month" id="leave-month-top" onchange="syncLeaveMonth(this.value)" class="text-xs font-bold border rounded-lg px-2 py-1 bg-gray-50">
+                    </div>
+                    <div id="edit-mode-indicator" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 hidden flex items-center space-x-2">
+                        <span>🔓 Editing Enabled (මුලු චාර්ට් එකම වෙනස් කළ හැක)</span>
+                        <button onclick="lockChartAgain()" class="text-red-600 underline ml-2">Lock කරන්න</button>
                     </div>
                 </div>
 
-                <div class="overflow-auto border border-gray-300 rounded-lg p-3 bg-gray-100 max-h-[650px]">
-                    <div id="printable-parade-report" class="bg-white p-6 border border-gray-300 shadow-md w-[1123px] min-h-[794px] flex flex-col justify-between transition-transform origin-top-left mx-auto">
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center border-b-2 border-gray-800 pb-2">
-                                <div class="text-left">
-                                    <p class="text-[14px] font-bold text-gray-900">ඉංජිසේමු විනයාරක්ෂක අංශය</p>
-                                </div>
-                                <div class="text-center flex-1">
-                                    <span id="sinhala-month-preview" class="text-[14px] font-bold text-gray-900"></span>
-                                </div>
-                            </div>
-
-                            <div class="border border-gray-800">
-                                <table class="w-full text-left border-collapse table-fixed">
-                                    <thead>
-                                        <tr class="bg-gray-100 text-gray-900 font-bold border-b border-gray-800 text-[9px] text-center" id="preview-table-head"></tr>
-                                    </thead>
-                                    <tbody id="preview-parade-table-body" class="divide-y divide-gray-800 text-[9px] text-center"></tbody>
-                                </table>
-                            </div>
+                <!-- Scrollable & Zoomable Container -->
+                <div class="overflow-auto border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-[600px] touch-pan-x touch-pan-y">
+                    <div id="printable-leave-report" class="bg-white p-6 rounded-xl border border-gray-300 shadow-md w-[1500px] space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-300 pb-3">
+                            <h2 id="leave-report-title" class="text-[14px] font-bold text-gray-900"></h2>
+                            <button id="unlock-pencil-btn" onclick="enableFullEdit()" class="no-print text-gray-400 hover:text-indigo-600 text-sm p-1 hidden" title="Edit Chart">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto border border-gray-400">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-indigo-50 text-indigo-950 font-bold border-b border-gray-400 text-[10px] text-center" id="leave-table-head"></tr>
+                                </thead>
+                                <tbody id="leave-table-body" class="divide-y divide-gray-300 text-[10px] text-center"></tbody>
+                            </table>
+                        </div>
+                        <!-- Summary Section on Bottom Left -->
+                        <div class="mt-4 pt-3 border-t text-[11px] font-semibold text-gray-700 space-y-1 text-left">
+                            <p class="font-bold text-indigo-900">සාරාංශ විස්තරය (TOTALS & SUMMARIES):</p>
+                            <div id="summary-text-container" class="space-y-1"></div>
                         </div>
                     </div>
                 </div>
@@ -346,11 +183,9 @@
         <section id="tab-setting" class="tab-content hidden w-full space-y-3">
             <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">ඇප් සෙටින්ග්ස් (Settings)</h3>
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
-                <button onclick="openAddSectionModal()" class="w-full p-3.5 flex items-center justify-between text-left hover:bg-gray-50 active:bg-gray-100 transition">
+                <button onclick="openAddSectionModal()" class="w-full p-3.5 flex items-center justify-between text-left hover:bg-gray-50 transition">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
-                            <i class="fa-solid fa-folder-plus"></i>
-                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-folder-plus"></i></div>
                         <span class="text-xs font-semibold text-gray-700">Add Section</span>
                     </div>
                     <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
@@ -362,120 +197,41 @@
         <section id="tab-chat" class="tab-content hidden w-full text-center text-gray-400 text-sm h-full flex items-center justify-center">
             <p>චැට් (Chat) මෙහි පෙන්වනු ඇත.</p>
         </section>
-
     </main>
 
     <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-1.5 shadow-lg max-w-7xl mx-auto z-20 no-print">
         <div class="flex justify-between items-center">
-            <button onclick="switchTab('home', 'මුල් පිටුව (Home)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-indigo-600 font-semibold transition-all duration-200">
-                <i class="fa-solid fa-house text-lg mb-0.5"></i>
-                <span class="text-[11px] leading-tight truncate w-full text-center">Home</span>
+            <button onclick="switchTab('home', 'මුල් පිටුව (Home)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-indigo-600 font-semibold">
+                <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[11px]">Home</span>
             </button>
-            <button onclick="switchTab('section', 'කොටස් (Sections)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-gray-400 hover:text-indigo-500 transition-all duration-200">
-                <i class="fa-solid fa-layer-group text-lg mb-0.5"></i>
-                <span class="text-[11px] leading-tight truncate w-full text-center">Section</span>
+            <button onclick="switchTab('section', 'කොටස් (Sections)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-gray-400">
+                <i class="fa-solid fa-layer-group text-lg mb-0.5"></i><span class="text-[11px]">Section</span>
             </button>
-            <button onclick="switchTab('setting', 'සෙටින්ග්ස් (Settings)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-gray-400 hover:text-indigo-500 transition-all duration-200">
-                <i class="fa-solid fa-gear text-lg mb-0.5"></i>
-                <span class="text-[11px] leading-tight truncate w-full text-center">Setting</span>
+            <button onclick="switchTab('setting', 'සෙටින්ග්ස් (Settings)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-gray-400">
+                <i class="fa-solid fa-gear text-lg mb-0.5"></i><span class="text-[11px]">Setting</span>
             </button>
-            <button onclick="switchTab('chat', 'සංවාද (Chat)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-gray-400 hover:text-indigo-500 transition-all duration-200">
-                <i class="fa-solid fa-comments text-lg mb-0.5"></i>
-                <span class="text-[11px] leading-tight truncate w-full text-center">Chat</span>
+            <button onclick="switchTab('chat', 'සංවාද (Chat)', this)" class="nav-btn flex-1 flex flex-col items-center justify-center py-1.5 px-1 text-gray-400">
+                <i class="fa-solid fa-comments text-lg mb-0.5"></i><span class="text-[11px]">Chat</span>
             </button>
         </div>
     </nav>
 
     <!-- Modal Form: Add Section -->
     <div id="add-section-modal" class="fixed inset-0 bg-black/50 z-30 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-sm font-bold text-gray-800">නව Section එකක් නිර්මාණය කිරීම</h3>
-                <button onclick="closeAddSectionModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <button onclick="closeAddSectionModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleCreateSection(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Section Name (කොටසේ නම) *</label>
-                    <input type="text" id="section-name-input" required placeholder="උදා: ඉංජිසේමු විනයාරක්ෂක අංශය" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="text" id="section-name-input" required placeholder="උදා: ඉංජිසේමු විනයාරක්ෂක අංශය" class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
                 <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="closeAddSectionModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
-                    <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl shadow-md">Create Section</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Form: Add/Edit Vehicle Record -->
-    <div id="add-vehicle-modal" class="fixed inset-0 bg-black/50 z-30 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="modal-title" class="text-sm font-bold text-gray-800">වාහන විස්තරයක් එකතු කරන්න</h3>
-                <button onclick="closeVehicleModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <form onsubmit="handleSaveVehicleRecord(event)" class="space-y-3">
-                <input type="hidden" id="edit-index" value="-1">
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">වාහන අංකය</label>
-                    <input type="text" id="v-no" list="datalist-no" placeholder="උදා: ඌආ 6969" oninput="onVehicleNumberInput(this.value)" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-no"></datalist>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">වර්ගය</label>
-                    <input type="text" id="v-type" list="datalist-type" placeholder="උදා: ත්‍රීරෝද" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-type"></datalist>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">අයත් ස්ථානය</label>
-                    <input type="text" id="v-owner" list="datalist-owner" placeholder="උදා: 5 SLE" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-owner"></datalist>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">යා කළ ස්ථානය</label>
-                    <input type="text" id="v-destination" list="datalist-destination" placeholder="උදා: මත්තේගොඩ" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-destination"></datalist>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">යුහ/යුහ වෙත පවරා ගත් බව</label>
-                    <input type="text" id="v-status" list="datalist-status" placeholder="උදා: පවරාගත්" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-status"></datalist>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">රක්ෂණය</label>
-                    <input type="text" id="v-insurance" list="datalist-insurance" placeholder="උදා: ඇත" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-insurance"></datalist>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">වේලාව</label>
-                    <input type="text" id="v-time" placeholder="උදා: 0658" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                </div>
-                
-                <div class="space-y-1.5 bg-gray-50 p-2.5 rounded-xl border border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <label class="block text-[11px] font-bold text-indigo-900">නිරීක්ෂණය වූ වැරදි</label>
-                        <button type="button" onclick="addNewFaultOption()" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded font-bold flex items-center space-x-1">
-                            <i class="fa-solid fa-plus"></i><span>නව වැරද්දක් එකතු කරන්න</span>
-                        </button>
-                    </div>
-                    <div class="flex flex-wrap gap-1 max-h-28 overflow-y-auto p-1 border bg-white rounded-lg" id="fault-chips-container"></div>
-                    <textarea id="v-faults" rows="3" placeholder="වැරදි මෙහි ටයිප් කරන්න හෝ ඉහත බොත්තම් ක්ලික් කරන්න..." class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none bg-white"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-700 mb-0.5">වෙනත්</label>
-                    <input type="text" id="v-other" list="datalist-other" placeholder="රපෝර්තු හෝ වෙනත් යමක් ඇතුළත් කරන්න" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none">
-                    <datalist id="datalist-other"></datalist>
-                </div>
-
-                <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="closeVehicleModal()" class="flex-1 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
-                    <button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl shadow-md">එකතු කරන්න</button>
+                    <button type="button" onclick="closeAddSectionModal()" class="flex-1 py-2.5 bg-gray-100 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl">Create Section</button>
                 </div>
             </form>
         </div>
@@ -486,60 +242,71 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-sm font-bold text-gray-800">අලුතින් විස්තරයක් එකතු කරන්න</h3>
-                <button onclick="closeAddExtraItemModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <button onclick="closeAddExtraItemModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleSaveExtraItem(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">විස්තරය (Description) *</label>
-                    <input type="text" id="extra-item-input" required placeholder="උදා: විශේෂ රාජකාරි වෙනත්" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="text" id="extra-item-input" required placeholder="උදා: විශේෂ රාජකාරි වෙනත්" class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
                 <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="closeAddExtraItemModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
-                    <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl shadow-md">එකතු කරන්න</button>
+                    <button type="button" onclick="closeAddExtraItemModal()" class="flex-1 py-2.5 bg-gray-100 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl">එකතු කරන්න</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Form: Daily Short Signature Pad & Upload -->
-    <div id="daily-sig-modal" class="fixed inset-0 bg-black/60 z-40 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 id="daily-sig-modal-title" class="text-xs font-bold text-indigo-900">කෙටි අත්සන යොදන්න</h3>
-                <button onclick="closeDailySigModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
+    <!-- Modal Form: Add Leave Person -->
+    <div id="add-leave-person-modal" class="fixed inset-0 bg-black/50 z-30 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-sm font-bold text-gray-800">නව සාමාජිකයෙක් එකතු කරන්න</h3>
+                <button onclick="closeAddLeavePersonModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-
-            <div class="space-y-3">
-                <div class="relative border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 h-32 flex items-center justify-center overflow-hidden">
-                    <canvas id="daily-sig-canvas" class="w-full h-full cursor-crosshair touch-none"></canvas>
-                    <img id="daily-sig-uploaded-preview" class="max-h-full max-w-full object-contain hidden pointer-events-none" alt="Uploaded Signature">
+            <form onsubmit="handleSaveLeavePerson(event)" class="space-y-3">
+                <div><label class="block text-xs font-semibold text-gray-700 mb-1">රෙජි අංකය *</label><input type="text" id="lp-reg" required placeholder="උදා: ඉස/680746" class="w-full px-3 py-2 border rounded-xl text-xs"></div>
+                <div><label class="block text-xs font-semibold text-gray-700 mb-1">නිලය *</label><input type="text" id="lp-rank" required placeholder="උදා: ලා/කෝප්" class="w-full px-3 py-2 border rounded-xl text-xs"></div>
+                <div><label class="block text-xs font-semibold text-gray-700 mb-1">නම *</label><input type="text" id="lp-name" required placeholder="උදා: මාරසිංහ" class="w-full px-3 py-2 border rounded-xl text-xs"></div>
+                <div><label class="block text-xs font-semibold text-gray-700 mb-1">ඒකකය *</label><input type="text" id="lp-unit" required placeholder="උදා: 1 ශ්‍රීලපොබෙ" class="w-full px-3 py-2 border rounded-xl text-xs"></div>
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="closeAddLeavePersonModal()" class="flex-1 py-2 bg-gray-100 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
+                    <button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl">එකතු කරන්න</button>
                 </div>
+            </form>
+        </div>
+    </div>
 
-                <div class="flex items-center justify-between gap-2">
-                    <button type="button" onclick="clearDailySigCanvas()" class="px-2.5 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-[11px] font-semibold">
-                        <i class="fa-solid fa-eraser mr-1"></i>මකන්න
-                    </button>
-                    <label class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-[11px] font-semibold cursor-pointer">
-                        <i class="fa-solid fa-upload mr-1"></i>අත්සන Upload
-                        <input type="file" id="daily-sig-file-input" accept="image/*" onchange="handleDailySigUpload(event)" class="hidden">
-                    </label>
-                </div>
-
-                <div class="pt-1 border-t">
-                    <label class="flex items-center space-x-2 text-xs font-bold text-gray-700 cursor-pointer">
-                        <input type="checkbox" id="daily-sig-venuwata" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                        <span>අත්සනට යටින් "(වෙනුවට)" යොදන්න</span>
-                    </label>
-                </div>
+    <!-- Modal: Delete Confirmation by Reg No -->
+    <div id="delete-person-modal" class="fixed inset-0 bg-black/50 z-30 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-sm font-bold text-red-600">සාමාජිකයා ඉවත් කිරීම තහවුරු කරන්න</h3>
+                <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-
+            <p class="text-xs text-gray-600">මෙම සාමාජිකයා ඉවත් කිරීමට කරුණාකර අදාළ <span id="del-reg-target" class="font-bold text-gray-900"></span> රෙජි අංකය පහතින් ඇතුළත් කරන්න:</p>
+            <input type="text" id="confirm-reg-input" placeholder="රෙජි අංකය මෙහි ලියන්න" class="w-full px-3 py-2 border rounded-xl text-xs">
             <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="deleteDailySig()" class="py-2 px-3 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-xl">ඉවත් කරන්න</button>
-                <button type="button" onclick="saveDailySig()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md">අත්සන ඇතුළත් කරන්න</button>
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2 bg-gray-100 text-xs font-semibold rounded-xl">අවලංගු කරන්න</button>
+                <button type="button" onclick="confirmDeletePerson()" class="flex-1 py-2 bg-red-600 text-white text-xs font-semibold rounded-xl">ඉවත් කරන්න</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Share / Download Options -->
+    <div id="download-modal" class="fixed inset-0 bg-black/50 z-30 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-center">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-sm font-bold text-gray-800">චාර්ට් එක ඩਾਊන්ලෝඩ් කරන්න</h3>
+                <button onclick="closeDownloadModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 py-2">
+                <button onclick="downloadChartAsJPG()" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow hover:bg-indigo-700 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-file-image"></i><span>JPG ලෙස Download කරගන්න (A4 Landscape)</span>
+                </button>
+                <button onclick="window.print()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow hover:bg-emerald-700 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-print"></i><span>PDF / Print</span>
+                </button>
             </div>
         </div>
     </div>
@@ -549,34 +316,21 @@
         let sections = JSON.parse(localStorage.getItem('app_sections')) || [];
         let vehicleRecords = JSON.parse(localStorage.getItem('app_vehicle_records')) || {};
         let paradeRecords = JSON.parse(localStorage.getItem('app_parade_records')) || {};
-        let savedSignatures = JSON.parse(localStorage.getItem('app_signatures')) || {};
+        let leaveRecords = JSON.parse(localStorage.getItem('app_leave_records')) || {};
         
-        let defaultFaults = JSON.parse(localStorage.getItem('app_default_faults')) || [
-            "රියදුරු ස්ථාවර නියෝග නොමැතිව රිය ධාවනය කිරීම.",
-            "මහා මාර්ග උපදේශණ සංග්‍රහය නොමැතිවීම.",
-            "හදීසි රිය අනතුරු වාර්ථාව නොමැතිවීම.",
-            "රියදුරු අනුමැතිය නොමැතිව රිය ධාවනය කිරීම.",
-            "වාමුවා පිස්නය අක්‍රීය වී තිබීම.",
-            "කැනපිය ඉරි තිබීම.",
-            "වායු පීඩනය සදහන් නොකර තිබීම.",
-            "රියදුරු බලපත්‍රය කල් ඉකුත් වී තිබීම.",
-            "තාවකාලික රියදුරු බලපත්‍රය කල් ඉකුත් වී තිබීම."
-        ];
+        let activeSectionId = null;
+        let currentDate = new Date().toISOString().split('T')[0];
+        let currentYearMonth = new Date().toISOString().slice(0, 7);
+        let leaveYearMonth = new Date().toISOString().slice(0, 7);
+        let pendingDeletePersonId = null;
+        let pendingDeleteReg = "";
 
-        let defaultParadeItems = [
-            "ඇතුලත් සංඛ්‍යාව",
-            "නිවාඩු / කෙටි නිවාඩු / වෛද්‍ය නිවාඩු",
-            "පිටතවාසි",
-            "පිටත යා කිරීම්",
-            "පාඨමාලා දේශීය / විදේශීය",
-            "රෝහල් ගත කිරීම් / \"C\" අනුව වෛද්‍ය වර්ගකිරීම් / පුල්හිම්ස් වෛද්‍ය පරික්ෂණ",
-            "ඉතිරි භඨ පිරිස් සංඛ්‍යාව",
-            "විශේෂ රාජකාරි",
-            "දෛනික රාජකාරි",
-            "අද දින කඳවුර තුල සිටින සංඛ්‍යාව"
-        ];
+        const sinhalaMonths = {
+            "01": "ජනවාරි", "02": "පෙබරවාරි", "03": "මාර්තු", "04": "අප්‍රේල්",
+            "05": "මැයි", "06": "ජූනි", "07": "ජූලි", "08": "අගෝස්තු",
+            "09": "සැප්තැම්බර්", "10": "ඔක්තෝබර්", "11": "නොවැම්බර්", "12": "දෙසැම්බර්"
+        };
 
-        // 2026 Sri Lanka Special Holidays & Poya Days Calendar mapping with descriptions (YYYY-MM-DD)
         const specialHolidays2026 = {
             "2026-01-03": {type: "poya", name: "දුරුතු පුර පසොළොස්වක පෝය දිනය"},
             "2026-01-14": {type: "holiday", name: "දුරුතු පුර තෛයිපොන්ගල් දිනය"},
@@ -584,13 +338,12 @@
             "2026-02-04": {type: "holiday", name: "ජාතික නිදහස් දිනය"},
             "2026-03-02": {type: "poya", name: "මැදින් පුර පසොළොස්වක පෝය දිනය"},
             "2026-03-30": {type: "poya", name: "බක් පුර පසොළොස්වක පෝය දිනය"},
-            "2026-04-03": {type: "holiday", name: "සිංහල හා දෙමළ අලුත් අවුරුදු දිනට පෙර දිනය / මහ සිකුරාදා"},
+            "2026-04-03": {type: "holiday", name: "මහ සිකුරාදා"},
             "2026-04-13": {type: "holiday", name: "සිංහල හා දෙමළ අලුත් අවුරුදු දිනය"},
             "2026-04-14": {type: "holiday", name: "සිංහල හා දෙමළ අලුත් අවුරුදු උත්සව දිනය"},
             "2026-04-28": {type: "poya", name: "වෙසක් පුර පසොළොස්වක පෝය දිනය"},
-            "2026-05-01": {type: "holiday", name: "මැයි දිනය (ජාත්‍යන්තර කම්කරු දිනය)"},
+            "2026-05-01": {type: "holiday", name: "මැයි දිනය"},
             "2026-05-27": {type: "poya", name: "පොසොන් පුර පසොළොස්වක පෝය දිනය"},
-            "2026-05-28": {type: "holiday", name: "හජ්ජි උත්සව දිනය"},
             "2026-06-25": {type: "poya", name: "ඇසළ පුර පසොළොස්වක පෝය දිනය"},
             "2026-07-24": {type: "poya", name: "නිකිණි පුර පසොළොස්වක පෝය දිනය"},
             "2026-08-23": {type: "poya", name: "බිනර පුර පසොළොස්වක පෝය දිනය"},
@@ -601,283 +354,23 @@
             "2026-12-25": {type: "holiday", name: "නත්තල් දිනය"}
         };
 
-        let activeSectionId = null;
-        let currentDate = new Date().toISOString().split('T')[0];
-        let currentYearMonth = new Date().toISOString().slice(0, 7);
-        let currentZoom = 1;
-        let currentEditZoom = 1;
-        let paradeZoom = 1;
-        let paradeEditZoom = 1;
-
-        let activeSigDay = null;
-        let uploadedSigDataUrl = null;
-        let hasDrawnOnCanvas = false;
-
-        const sinhalaMonths = {
-            "01": "ජනවාරි", "02": "පෙබරවාරි", "03": "මාර්තු", "04": "අප්‍රේල්",
-            "05": "මැයි", "06": "ජූනි", "07": "ජූලි", "08": "අගෝස්තු",
-            "09": "සැප්තැම්බර්", "10": "ඔක්තෝබර්", "11": "නොවැම්බර්", "12": "දෙසැම්බර්"
-        };
-
-        function getSinhalaDate(dateStr) {
-            if(!dateStr) return '';
-            const parts = dateStr.split('-');
-            if(parts.length !== 3) return dateStr;
-            return `${parts[2]} ${sinhalaMonths[parts[1]] || parts[1]} ${parts[0]}`;
-        }
-
-        function getDaysInMonth(year, month) {
-            return new Date(year, month, 0).getDate();
-        }
-
-        function getSinhalaMonthTitle(ym) {
-            if(!ym) return '';
-            const parts = ym.split('-');
-            return `${parts[0]} ${sinhalaMonths[parts[1]] || parts[1]} මස දෛනික පෙළපාලි විස්තරය`;
-        }
+        let defaultParadeItems = [
+            "ඇතුලත් සංඛ්‍යාව", "නිවාඩු / කෙටි නිවාඩු / වෛද්‍ය නිවාඩු", "පිටතවාසි",
+            "පිටත යා කිරීම්", "පාඨමාලා දේශීය / විදේශීය", "රෝහල් ගත කිරීම්",
+            "ඉතිරි භඨ පිරිස් සංඛ්‍යාව", "විශේෂ රාජකාරි", "දෛනික රාජකාරි", "අද දින කඳවුර තුල සිටින සංඛ්‍යාව"
+        ];
 
         document.addEventListener('DOMContentLoaded', () => {
-            const topDateEl = document.getElementById('report-date-top');
-            if(topDateEl) topDateEl.value = currentDate;
-            updateSinhalaDateDisplay(currentDate);
-
-            const topMonthEl = document.getElementById('report-month-top');
-            if(topMonthEl) topMonthEl.value = currentYearMonth;
-            updateSinhalaMonthDisplay(currentYearMonth);
-
+            document.getElementById('report-date-top').value = currentDate;
+            document.getElementById('report-month-top').value = currentYearMonth;
+            document.getElementById('leave-month-top').value = leaveYearMonth;
             renderSections();
-            initSignaturePad();
-            setupDailySigCanvas();
         });
 
-        function updateSinhalaDateDisplay(dateStr) {
-            const el = document.getElementById('sinhala-date-preview');
-            if(el) el.innerText = getSinhalaDate(dateStr);
-        }
+        function syncDate(val) { currentDate = val; renderVehicleTable(); }
+        function syncMonth(val) { currentYearMonth = val; renderParadeTable(); }
+        function syncLeaveMonth(val) { leaveYearMonth = val; renderLeaveTable(); }
 
-        function updateSinhalaMonthDisplay(ym) {
-            const el = document.getElementById('sinhala-month-preview');
-            if(el) el.innerText = getSinhalaMonthTitle(ym);
-        }
-
-        function syncDate(val) {
-            currentDate = val;
-            const topDateEl = document.getElementById('report-date-top');
-            if(topDateEl) topDateEl.value = val;
-            updateSinhalaDateDisplay(val);
-            renderVehicleTable();
-            loadSignatureForCurrentDate();
-        }
-
-        function syncMonth(val) {
-            currentYearMonth = val;
-            updateSinhalaMonthDisplay(val);
-            renderParadeTable();
-        }
-
-        // Zoom Controls
-        function zoomReport(amount) { currentZoom = Math.min(1.5, Math.max(0.5, currentZoom + amount)); document.getElementById('printable-report').style.transform = `scale(${currentZoom})`; }
-        function resetZoom() { currentZoom = 1; document.getElementById('printable-report').style.transform = `scale(1)`; }
-        function zoomEditTable(amount) { currentEditZoom = Math.min(1.5, Math.max(0.5, currentEditZoom + amount)); document.getElementById('editable-report-container').style.transform = `scale(${currentEditZoom})`; }
-        function resetEditTableZoom() { currentEditZoom = 1; document.getElementById('editable-report-container').style.transform = `scale(1)`; }
-
-        function zoomParadeReport(amount) { paradeZoom = Math.min(1.5, Math.max(0.5, paradeZoom + amount)); document.getElementById('printable-parade-report').style.transform = `scale(${paradeZoom})`; }
-        function resetParadeZoom() { paradeZoom = 1; document.getElementById('printable-parade-report').style.transform = `scale(1)`; }
-        function zoomParadeEditTable(amount) { paradeEditZoom = Math.min(1.5, Math.max(0.5, paradeEditZoom + amount)); document.getElementById('editable-parade-container').style.transform = `scale(${paradeEditZoom})`; }
-        function resetParadeEditTableZoom() { paradeEditZoom = 1; document.getElementById('editable-parade-container').style.transform = `scale(1)`; }
-
-        // Signature Pad (Vehicle)
-        let canvas, ctx, isDrawing = false;
-        function initSignaturePad() {
-            canvas = document.getElementById('sig-canvas');
-            if(!canvas) return;
-            ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 2;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            loadSignatureForCurrentDate();
-
-            canvas.addEventListener('mousedown', startDraw);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDraw);
-            canvas.addEventListener('mouseleave', stopDraw);
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
-            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
-            canvas.addEventListener('touchend', (e) => { e.preventDefault(); stopDraw(); });
-        }
-
-        function loadSignatureForCurrentDate() {
-            const sigKey = `${activeSectionId}_${currentDate}`;
-            const imgDisplay = document.getElementById('sig-image-display');
-            const imgPreview = document.getElementById('sig-image-preview');
-            if (activeSectionId && savedSignatures[sigKey]) {
-                if(imgDisplay) { imgDisplay.src = savedSignatures[sigKey]; imgDisplay.classList.remove('hidden'); }
-                if(canvas) canvas.classList.add('hidden');
-                if(imgPreview) { imgPreview.src = savedSignatures[sigKey]; imgPreview.classList.remove('hidden'); }
-            } else {
-                if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if(imgDisplay) { imgDisplay.classList.add('hidden'); imgDisplay.src = ''; }
-                if(canvas) canvas.classList.remove('hidden');
-                if(imgPreview) { imgPreview.classList.add('hidden'); imgPreview.src = ''; }
-            }
-        }
-
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return { x: (e.clientX || e.pageX) - rect.left, y: (e.clientY || e.pageY) - rect.top };
-        }
-        function startDraw(e) { isDrawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
-        function draw(e) { if (!isDrawing) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); }
-        function stopDraw() {
-            if(isDrawing) {
-                isDrawing = false;
-                if (activeSectionId) {
-                    const dataURL = canvas.toDataURL('image/png');
-                    savedSignatures[`${activeSectionId}_${currentDate}`] = dataURL;
-                    saveToLocalStorage();
-                    const imgPreview = document.getElementById('sig-image-preview');
-                    if(imgPreview) { imgPreview.src = dataURL; imgPreview.classList.remove('hidden'); }
-                }
-            }
-        }
-        function clearSignature() {
-            if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('sig-image-display')?.classList.add('hidden');
-            document.getElementById('sig-image-preview')?.classList.add('hidden');
-            canvas?.classList.remove('hidden');
-            if (activeSectionId) {
-                delete savedSignatures[`${activeSectionId}_${currentDate}`];
-                saveToLocalStorage();
-            }
-        }
-        function uploadSignature(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('sig-image-display').src = e.target.result;
-                    document.getElementById('sig-image-display').classList.remove('hidden');
-                    canvas.classList.add('hidden');
-                    document.getElementById('sig-image-preview').src = e.target.result;
-                    document.getElementById('sig-image-preview').classList.remove('hidden');
-                    if (activeSectionId) {
-                        savedSignatures[`${activeSectionId}_${currentDate}`] = e.target.result;
-                        saveToLocalStorage();
-                    }
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-        function syncSignatureTitle(val) {
-            const titlePreview = document.getElementById('signature-title-preview');
-            if(titlePreview) titlePreview.innerText = val;
-        }
-
-        // Daily Signature Pad (Parade)
-        let dCanvas, dCtx, dIsDrawing = false;
-        function setupDailySigCanvas() {
-            dCanvas = document.getElementById('daily-sig-canvas');
-            if(!dCanvas) return;
-            dCtx = dCanvas.getContext('2d');
-            const getCoords = (e) => {
-                const rect = dCanvas.getBoundingClientRect();
-                return {
-                    x: ((e.touches ? e.touches[0].clientX : e.clientX) - rect.left) * (dCanvas.width / rect.width),
-                    y: ((e.touches ? e.touches[0].clientY : e.clientY) - rect.top) * (dCanvas.height / rect.height)
-                };
-            };
-            const start = (e) => { if (uploadedSigDataUrl) return; dIsDrawing = true; hasDrawnOnCanvas = true; const pos = getCoords(e); dCtx.beginPath(); dCtx.moveTo(pos.x, pos.y); };
-            const move = (e) => { if (!dIsDrawing) return; const pos = getCoords(e); dCtx.lineTo(pos.x, pos.y); dCtx.stroke(); };
-            const end = () => { dIsDrawing = false; };
-
-            dCanvas.addEventListener('mousedown', start);
-            dCanvas.addEventListener('mousemove', move);
-            dCanvas.addEventListener('mouseup', end);
-            dCanvas.addEventListener('mouseleave', end);
-            dCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); }, { passive: false });
-            dCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); }, { passive: false });
-            dCanvas.addEventListener('touchend', end);
-        }
-
-        function openDailySigModal(dayStr) {
-            if (!activeSectionId) return;
-            activeSigDay = dayStr;
-            uploadedSigDataUrl = null;
-            hasDrawnOnCanvas = false;
-
-            document.getElementById('daily-sig-modal').classList.remove('hidden');
-            document.getElementById('daily-sig-modal-title').innerText = `${currentYearMonth}-${dayStr} දින සඳහා කෙටි අත්සන`;
-            document.getElementById('daily-sig-file-input').value = '';
-
-            dCanvas.width = 400; dCanvas.height = 160;
-            dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
-            dCtx.strokeStyle = '#0f172a'; dCtx.lineWidth = 2.2; dCtx.lineCap = 'round'; dCtx.lineJoin = 'round';
-
-            const existingSig = paradeRecords[activeSectionId]?.[currentYearMonth]?.signatures?.[dayStr];
-            const previewImg = document.getElementById('daily-sig-uploaded-preview');
-            if (existingSig && existingSig.img) {
-                uploadedSigDataUrl = existingSig.img;
-                previewImg.src = existingSig.img;
-                previewImg.classList.remove('hidden');
-                dCanvas.classList.add('hidden');
-                document.getElementById('daily-sig-venuwata').checked = !!existingSig.venuwata;
-            } else {
-                previewImg.classList.add('hidden');
-                dCanvas.classList.remove('hidden');
-                document.getElementById('daily-sig-venuwata').checked = existingSig ? !!existingSig.venuwata : false;
-            }
-        }
-        function closeDailySigModal() { document.getElementById('daily-sig-modal').classList.add('hidden'); activeSigDay = null; }
-        function clearDailySigCanvas() {
-            uploadedSigDataUrl = null; hasDrawnOnCanvas = false;
-            document.getElementById('daily-sig-uploaded-preview').classList.add('hidden');
-            document.getElementById('daily-sig-file-input').value = '';
-            dCanvas.classList.remove('hidden');
-            dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
-        }
-        function handleDailySigUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedSigDataUrl = e.target.result;
-                    hasDrawnOnCanvas = false;
-                    document.getElementById('daily-sig-uploaded-preview').src = uploadedSigDataUrl;
-                    document.getElementById('daily-sig-uploaded-preview').classList.remove('hidden');
-                    dCanvas.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        function saveDailySig() {
-            if (!activeSectionId || !activeSigDay) return;
-            ensureMonthDataStructure();
-            const venuwata = document.getElementById('daily-sig-venuwata').checked;
-            let finalImg = uploadedSigDataUrl || (hasDrawnOnCanvas ? dCanvas.toDataURL('image/png') : null);
-
-            if (finalImg || venuwata) {
-                paradeRecords[activeSectionId][currentYearMonth].signatures[activeSigDay] = { img: finalImg, venuwata: venuwata };
-            } else {
-                delete paradeRecords[activeSectionId][currentYearMonth].signatures[activeSigDay];
-            }
-            saveToLocalStorage();
-            renderParadeTable();
-            closeDailySigModal();
-        }
-        function deleteDailySig() {
-            if (!activeSectionId || !activeSigDay) return;
-            if (paradeRecords[activeSectionId]?.[currentYearMonth]?.signatures) {
-                delete paradeRecords[activeSectionId][currentYearMonth].signatures[activeSigDay];
-                saveToLocalStorage();
-                renderParadeTable();
-            }
-            closeDailySigModal();
-        }
-
-        // Navigation & Sections
         function switchTab(tabName, titleText, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById('tab-' + tabName)?.classList.remove('hidden');
@@ -887,16 +380,18 @@
         }
 
         function openAddSectionModal() { document.getElementById('add-section-modal').classList.remove('hidden'); }
-        function closeAddSectionModal() { document.getElementById('add-section-modal').classList.add('hidden'); document.getElementById('section-name-input').value = ''; }
+        function closeAddSectionModal() { document.getElementById('add-section-modal').classList.add('hidden'); }
         function openAddExtraItemModal() { document.getElementById('add-extra-item-modal').classList.remove('hidden'); }
-        function closeAddExtraItemModal() { document.getElementById('add-extra-item-modal').classList.add('hidden'); document.getElementById('extra-item-input').value = ''; }
+        function closeAddExtraItemModal() { document.getElementById('add-extra-item-modal').classList.add('hidden'); }
+        function openAddLeavePersonModal() { document.getElementById('add-leave-person-modal').classList.remove('hidden'); }
+        function closeAddLeavePersonModal() { document.getElementById('add-leave-person-modal').classList.add('hidden'); }
+        function openDownloadModal() { document.getElementById('download-modal').classList.remove('hidden'); }
+        function closeDownloadModal() { document.getElementById('download-modal').classList.add('hidden'); }
 
         function handleCreateSection(e) {
             e.preventDefault();
             const sectionName = document.getElementById('section-name-input').value.trim();
             if (!sectionName) return;
-            if (sections.some(sec => sec.name.toLowerCase() === sectionName.toLowerCase())) { alert('මෙම නමින් දැනටමත් Section එකක් පවතී!'); return; }
-
             const defaultFiles = [
                 { id: 'mp_details', name: 'MP අයවලුන්ගේ විස්තර', icon: 'fa-user-shield' },
                 { id: 'officer_details', name: 'නිලධාරි විස්තර', icon: 'fa-user-tie' },
@@ -908,11 +403,8 @@
                 { id: 'night_parade', name: 'රාත්‍රී නාම පෙරට්ටුව', icon: 'fa-moon' },
                 { id: 'duty_roster', name: 'රාජකාරි ලේඛණය', icon: 'fa-clipboard-list' }
             ];
-
             const secId = Date.now();
             sections.push({ id: secId, name: sectionName, files: defaultFiles });
-            vehicleRecords[secId] = {};
-            paradeRecords[secId] = {};
             saveToLocalStorage();
             renderSections();
             closeAddSectionModal();
@@ -923,60 +415,37 @@
             localStorage.setItem('app_sections', JSON.stringify(sections));
             localStorage.setItem('app_vehicle_records', JSON.stringify(vehicleRecords));
             localStorage.setItem('app_parade_records', JSON.stringify(paradeRecords));
-            localStorage.setItem('app_signatures', JSON.stringify(savedSignatures));
-            localStorage.setItem('app_default_faults', JSON.stringify(defaultFaults));
+            localStorage.setItem('app_leave_records', JSON.stringify(leaveRecords));
         }
 
         function deleteSection(secId, secName) {
-            if (confirm(`"${secName}" Section එක සහ එහි සියලුම දත්ත මකා දැමීමට අවශ්‍ය බව විශ්වාසද?`)) {
+            if (confirm(`"${secName}" Section එක මකා දැමීමට අවශ්‍ය බව විශ්වාසද?`)) {
                 sections = sections.filter(s => s.id !== secId);
-                delete vehicleRecords[secId];
-                delete paradeRecords[secId];
                 saveToLocalStorage();
                 renderSections();
             }
-        }
-
-        function setupLongPress(element, secId, secName) {
-            let pressTimer = null;
-            const startPress = (e) => {
-                if (e.target.closest('.file-item') || e.target.closest('button') || e.target.closest('i')) return;
-                pressTimer = setTimeout(() => {
-                    deleteSection(secId, secName);
-                }, 1000); // 1 second hold to delete
-            };
-            const cancelPress = () => {
-                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-            };
-            element.addEventListener('mousedown', startPress);
-            element.addEventListener('mouseup', cancelPress);
-            element.addEventListener('mouseleave', cancelPress);
-            element.addEventListener('touchstart', startPress);
-            element.addEventListener('touchend', cancelPress);
-            element.addEventListener('touchcancel', cancelPress);
         }
 
         function renderSections() {
             const container = document.getElementById('sections-container');
             if(!container) return;
             if (sections.length === 0) { container.innerHTML = `<p class="text-center text-gray-400 text-sm py-8">තවමත් කිසිදු Section එකක් එකතු කර නොමැත.</p>`; return; }
-
             container.innerHTML = sections.map(sec => `
-                <div id="section-card-${sec.id}" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition">
-                    <div class="w-full p-3.5 bg-white hover:bg-gray-50 flex items-center justify-between transition cursor-pointer">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="w-full p-3.5 bg-white hover:bg-gray-50 flex items-center justify-between cursor-pointer">
                         <div onclick="toggleSectionDetails(${sec.id})" class="flex items-center space-x-3 flex-1">
                             <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-folder"></i></div>
                             <span class="text-xs font-bold text-gray-800">${sec.name}</span>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <button onclick="deleteSection(${sec.id}, '${sec.name}')" class="text-red-400 hover:text-red-600 p-1 text-xs no-print" title="Section එක මකන්න"><i class="fa-solid fa-trash"></i></button>
-                            <span onclick="toggleSectionDetails(${sec.id})" class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-semibold">${sec.files.length} Files</span>
-                            <i id="arrow-icon-${sec.id}" onclick="toggleSectionDetails(${sec.id})" class="fa-solid fa-chevron-down text-gray-400 text-xs transition-transform duration-200"></i>
+                            <button onclick="deleteSection(${sec.id}, '${sec.name}')" class="text-red-400 hover:text-red-600 p-1 text-xs"><i class="fa-solid fa-trash"></i></button>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-semibold">${sec.files.length} Files</span>
+                            <i class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
                         </div>
                     </div>
                     <div id="files-list-${sec.id}" class="hidden border-t border-gray-100 bg-gray-50/50 p-2 divide-y divide-gray-100">
                         ${sec.files.map(file => `
-                            <div onclick="openFileView(${sec.id}, '${file.id}', '${sec.name}')" class="file-item py-2.5 px-3 flex items-center justify-between text-left hover:bg-white rounded-lg transition cursor-pointer">
+                            <div onclick="openFileView(${sec.id}, '${file.id}', '${sec.name}')" class="py-2.5 px-3 flex items-center justify-between hover:bg-white rounded-lg cursor-pointer">
                                 <div class="flex items-center space-x-2.5">
                                     <div class="w-6 h-6 rounded bg-indigo-100/60 text-indigo-700 flex items-center justify-center text-[11px]"><i class="fa-solid ${file.icon}"></i></div>
                                     <span class="text-xs text-gray-700 font-medium">${file.name}</span>
@@ -987,23 +456,10 @@
                     </div>
                 </div>
             `).join('');
-
-            sections.forEach(sec => {
-                const card = document.getElementById(`section-card-${sec.id}`);
-                if (card) setupLongPress(card, sec.id, sec.name);
-            });
         }
 
         function toggleSectionDetails(sectionId) {
-            const detailsElement = document.getElementById(`files-list-${sectionId}`);
-            const arrowElement = document.getElementById(`arrow-icon-${sectionId}`);
-            if (detailsElement.classList.contains('hidden')) {
-                detailsElement.classList.remove('hidden');
-                arrowElement.classList.replace('fa-chevron-down', 'fa-chevron-up');
-            } else {
-                detailsElement.classList.add('hidden');
-                arrowElement.classList.replace('fa-chevron-up', 'fa-chevron-down');
-            }
+            document.getElementById(`files-list-${sectionId}`).classList.toggle('hidden');
         }
 
         function openFileView(secId, fileId, secName) {
@@ -1015,14 +471,16 @@
                 document.getElementById('vehicle-report-view').classList.remove('hidden');
                 document.getElementById('header-title').innerText = 'වාහන විස්තර වාර්තාව';
                 renderVehicleTable();
-                updateDatalists();
-                renderFaultChips();
-                setTimeout(initSignaturePad, 100);
             } else if (fileId === 'parade_details') {
                 document.getElementById('current-parade-section-title').innerText = `${secName} > දෛනික පෙළපාලි විස්තරය`;
                 document.getElementById('parade-report-view').classList.remove('hidden');
                 document.getElementById('header-title').innerText = 'දෛනික පෙළපාලි විස්තරය';
                 renderParadeTable();
+            } else if (fileId === 'leave_records') {
+                document.getElementById('current-leave-section-title').innerText = `${secName} > නිවාඩු දින සටහන් තැබීම`;
+                document.getElementById('leave-report-view').classList.remove('hidden');
+                document.getElementById('header-title').innerText = 'නිවාඩු දින සටහන් තැබීම';
+                renderLeaveTable();
             }
         }
 
@@ -1032,446 +490,333 @@
             document.getElementById('header-title').innerText = 'කොටස් (Sections)';
         }
 
-        // Vehicle Report Functions
-        function updateDatalists() {
-            let allRecords = [];
-            Object.values(vehicleRecords[activeSectionId] || {}).forEach(val => { if (Array.isArray(val)) allRecords.push(...val); });
-            const getUnique = (key) => [...new Set(allRecords.map(r => r[key]).filter(v => v && v !== '-'))];
-            ['no', 'type', 'owner', 'destination', 'status', 'insurance', 'other'].forEach(key => {
-                document.getElementById(`datalist-${key}`).innerHTML = getUnique(key).map(v => `<option value="${v}">`).join('');
-            });
-        }
-
-        function renderFaultChips() {
-            document.getElementById('fault-chips-container').innerHTML = defaultFaults.map(fault => `
-                <button type="button" onclick="appendFaultText('${fault.replace(/'/g, "&apos;")}')" class="text-[10px] bg-gray-100 hover:bg-indigo-50 hover:text-indigo-700 text-gray-700 border border-gray-200 px-2 py-1 rounded-md text-left transition font-medium flex items-center space-x-1">
-                    <span class="text-indigo-600 font-bold">+</span><span class="truncate max-w-[280px]">${fault}</span>
-                </button>
-            `).join('');
-        }
-
-        function appendFaultText(faultText) {
-            const textarea = document.getElementById('v-faults');
-            let lines = textarea.value.trim() ? textarea.value.trim().split(/\r?\n/).map(l => l.replace(/^\d+[\.\)]\s*/, '').trim()).filter(Boolean) : [];
-            if (!lines.includes(faultText)) lines.push(faultText);
-            textarea.value = lines.map((l, i) => `${i + 1}. ${l}`).join('\n');
-            checkAndUpdateOtherField();
-        }
-
-        function addNewFaultOption() {
-            const newFault = prompt("කරුණාකර නව නිරීක්ෂණය වූ වැරැද්ද ඇතුළත් කරන්න:");
-            if (newFault && newFault.trim()) {
-                const cleaned = newFault.trim();
-                if (!defaultFaults.includes(cleaned)) {
-                    defaultFaults.push(cleaned);
-                    saveToLocalStorage();
-                    renderFaultChips();
-                    appendFaultText(cleaned);
-                }
+        function getDaysInMonth(year, month) { return new Date(year, month, 0).getDate(); }
+        function getDateBgClass(cellDateStr) {
+            let dateObj = new Date(cellDateStr);
+            let dayOfWeek = dateObj.getDay();
+            let holiday = specialHolidays2026[cellDateStr];
+            if (holiday) {
+                if (holiday.type === 'poya') return 'bg-yellow-200 text-yellow-950 font-bold';
+                return 'bg-rose-200 text-rose-950 font-bold';
             }
+            if (dayOfWeek === 0) return 'bg-rose-100 text-rose-950 font-bold';
+            if (dayOfWeek === 6) return 'bg-gray-200 text-gray-900 font-bold';
+            return '';
         }
 
-        function checkAndUpdateOtherField() {
-            const val = document.getElementById('v-faults').value.trim();
-            const otherInput = document.getElementById('v-other');
-            if (val && val !== '-') otherInput.value = 'රපෝර්තු';
-            else if (otherInput.value === 'රපෝර්තු') otherInput.value = '';
-        }
-
-        function onVehicleNumberInput(val) {
-            let allRecords = [];
-            Object.values(vehicleRecords[activeSectionId] || {}).forEach(list => { if (Array.isArray(list)) allRecords.push(...list); });
-            const found = allRecords.find(r => r.no.toLowerCase() === val.trim().toLowerCase());
-            if (found) {
-                ['type', 'owner', 'destination', 'status', 'insurance', 'time', 'faults', 'other'].forEach(k => {
-                    document.getElementById(`v-${k}`).value = found[k] !== '-' ? found[k] : '';
-                });
-            }
-        }
-
-        function openVehicleModal(index = -1) {
-            document.getElementById('add-vehicle-modal').classList.remove('hidden');
-            document.getElementById('edit-index').value = index;
-            updateDatalists();
-            renderFaultChips();
-            if (index >= 0) {
-                document.getElementById('modal-title').innerText = 'වාහන විස්තරය වෙනස් කරන්න (Edit)';
-                const rec = vehicleRecords[activeSectionId][currentDate][index];
-                ['no', 'type', 'owner', 'destination', 'status', 'insurance', 'time', 'faults', 'other'].forEach(k => {
-                    document.getElementById(`v-${k}`).value = rec[k] !== '-' ? rec[k] : '';
-                });
-            } else {
-                document.getElementById('modal-title').innerText = 'වාහන විස්තරයක් එකතු කරන්න';
-                ['no', 'type', 'owner', 'destination', 'status', 'insurance', 'time', 'faults', 'other'].forEach(k => { document.getElementById(`v-${k}`).value = ''; });
-            }
-        }
-        function closeVehicleModal() { document.getElementById('add-vehicle-modal').classList.add('hidden'); }
-
-        function handleSaveVehicleRecord(e) {
-            e.preventDefault();
-            if (!activeSectionId) return;
-            const index = parseInt(document.getElementById('edit-index').value);
-            const getVal = (id) => document.getElementById(id).value.trim() || '-';
-
-            let faultsVal = getVal('v-faults');
-            if (faultsVal !== '-') {
-                faultsVal = faultsVal.split(/\r?\n/).map(l => l.replace(/^\d+[\.\)]\s*/, '').trim()).filter(Boolean).map((l, i) => `${i + 1}. ${l}`).join('\n');
-            }
-            let otherVal = getVal('v-other');
-            if (faultsVal !== '-' && (!otherVal || otherVal === '-')) otherVal = 'රපෝර්තු';
-
-            const record = {
-                no: getVal('v-no'), type: getVal('v-type'), owner: getVal('v-owner'),
-                destination: getVal('v-destination'), status: getVal('v-status'),
-                insurance: getVal('v-insurance'), time: getVal('v-time'),
-                faults: faultsVal, other: otherVal
-            };
-
-            if (!vehicleRecords[activeSectionId]) vehicleRecords[activeSectionId] = {};
-            if (!vehicleRecords[activeSectionId][currentDate]) vehicleRecords[activeSectionId][currentDate] = [];
-
-            if (index >= 0) vehicleRecords[activeSectionId][currentDate][index] = record;
-            else vehicleRecords[activeSectionId][currentDate].push(record);
-
-            saveToLocalStorage();
-            renderVehicleTable();
-            closeVehicleModal();
-        }
-
-        function deleteVehicleRecord(index) {
-            if (confirm('මෙම සටහන මකා දැමීමට අවශ්‍ය බව විශ්වාසද?')) {
-                vehicleRecords[activeSectionId][currentDate].splice(index, 1);
-                saveToLocalStorage();
-                renderVehicleTable();
-            }
-        }
-
-        function saveVehicleReportData() { saveToLocalStorage(); alert('වාර්තාව සාර්ථකව Save කර ඇත!'); }
-
-        function renderVehicleTable() {
-            const records = vehicleRecords[activeSectionId]?.[currentDate] || [];
-            const tbody = document.getElementById('vehicle-table-body');
-            const previewBody = document.getElementById('preview-table-body');
-            if (!tbody || !previewBody) return;
-
-            if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="p-4 text-center text-gray-400 font-medium">කිසිදු වාහන සටහනක් ඇතුළත් කර නොමැත.</td></tr>`;
-                previewBody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-gray-400 font-medium">කිසිදු වාහන සටහනක් ඇතුළත් කර නොමැත.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = records.map((rec, i) => `
-                <tr class="hover:bg-gray-50 border-b border-gray-200 text-gray-800 align-middle">
-                    <td class="p-2 border-r border-gray-300 font-bold">${String(i + 1).padStart(2, '0')}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.no}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.type}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.owner}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.destination}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.status}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.insurance}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.time}</td>
-                    <td class="p-2 border-r border-gray-300 px-3 text-left">${rec.faults !== '-' ? rec.faults.replace(/\n/g, '<br>') : '-'}</td>
-                    <td class="p-2 border-r border-gray-300 text-left px-3">${rec.other !== '-' ? rec.other.replace(/\n/g, '<br>') : '-'}</td>
-                    <td class="p-2 space-x-1.5 whitespace-nowrap">
-                        <button onclick="openVehicleModal(${i})" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[10px]" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteVehicleRecord(${i})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[10px]" title="Delete"><i class="fa-solid fa-xmark"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-
-            previewBody.innerHTML = records.map((rec, i) => `
-                <tr class="border-b border-gray-200 text-gray-800 align-middle">
-                    <td class="p-2 border-r border-gray-300 font-bold">${String(i + 1).padStart(2, '0')}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.no}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.type}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.owner}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.destination}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.status}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.insurance}</td>
-                    <td class="p-2 border-r border-gray-300">${rec.time}</td>
-                    <td class="p-2 border-r border-gray-300 px-3 text-left">${rec.faults !== '-' ? rec.faults.replace(/\n/g, '<br>') : '-'}</td>
-                    <td class="p-2 text-left px-3">${rec.other !== '-' ? rec.other.replace(/\n/g, '<br>') : '-'}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Parade Report Functions
-        function ensureMonthDataStructure() {
+        // --- PARADE REPORT IMPLEMENTATION ---
+        function ensureParadeDataStructure() {
             if (!paradeRecords[activeSectionId]) paradeRecords[activeSectionId] = {};
             if (!paradeRecords[activeSectionId][currentYearMonth]) {
-                paradeRecords[activeSectionId][currentYearMonth] = { items: [...defaultParadeItems], data: {}, savedDays: {}, signatures: {} };
+                paradeRecords[activeSectionId][currentYearMonth] = { items: [...defaultParadeItems], data: {} };
             }
-            let currentItems = paradeRecords[activeSectionId][currentYearMonth].items;
-            defaultParadeItems.forEach(defItem => {
-                if (!currentItems.includes(defItem)) currentItems.push(defItem);
-            });
         }
 
         function handleSaveExtraItem(e) {
             e.preventDefault();
             const newItemName = document.getElementById('extra-item-input').value.trim();
             if (!newItemName || !activeSectionId) return;
-            ensureMonthDataStructure();
+            ensureParadeDataStructure();
             paradeRecords[activeSectionId][currentYearMonth].items.push(newItemName);
             saveToLocalStorage();
             renderParadeTable();
             closeAddExtraItemModal();
         }
 
-        function deleteParadeItem(index) {
-            if (!activeSectionId) return;
-            ensureMonthDataStructure();
-            let monthObj = paradeRecords[activeSectionId][currentYearMonth];
-            if (monthObj.items.length <= 1) {
-                alert('ቢያම අවම වශයෙන් එක් විස්තරයක්වත් තිබිය යුතුය!');
-                return;
-            }
-            if (confirm(`"${monthObj.items[index]}" විස්තරය ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?`)) {
-                monthObj.items.splice(index, 1);
-                let newData = {};
-                Object.keys(monthObj.data).forEach(day => {
-                    newData[day] = {};
-                    Object.keys(monthObj.data[day]).forEach(oldIdx => {
-                        let idx = parseInt(oldIdx);
-                        if (idx < index) newData[day][idx] = monthObj.data[day][oldIdx];
-                        else if (idx > index) newData[day][idx - 1] = monthObj.data[day][oldIdx];
-                    });
-                });
-                monthObj.data = newData;
-                saveToLocalStorage();
-                renderParadeTable();
-            }
-        }
-
-        function moveParadeItem(index, direction) {
-            if (!activeSectionId) return;
-            ensureMonthDataStructure();
-            let monthObj = paradeRecords[activeSectionId][currentYearMonth];
-            let targetIndex = index + direction;
-            if (targetIndex < 0 || targetIndex >= monthObj.items.length) return;
-
-            let temp = monthObj.items[index];
-            monthObj.items[index] = monthObj.items[targetIndex];
-            monthObj.items[targetIndex] = temp;
-
-            Object.keys(monthObj.data).forEach(day => {
-                let dMap = monthObj.data[day];
-                let val1 = dMap[index];
-                let val2 = dMap[targetIndex];
-                if (val2 !== undefined) dMap[index] = val2; else delete dMap[index];
-                if (val1 !== undefined) dMap[targetIndex] = val1; else delete dMap[targetIndex];
-            });
-
-            saveToLocalStorage();
-            renderParadeTable();
-        }
-
         function updateParadeCell(day, itemIndex, val) {
             if (!activeSectionId) return;
-            ensureMonthDataStructure();
+            ensureParadeDataStructure();
             let monthData = paradeRecords[activeSectionId][currentYearMonth];
             if (!monthData.data[day]) monthData.data[day] = {};
-
-            const cleanVal = val.trim();
-            if (!cleanVal || cleanVal === '-') delete monthData.data[day][itemIndex];
-            else monthData.data[day][itemIndex] = cleanVal;
-
-            let hasAnyData = Object.keys(monthData.data[day]).some(i => monthData.data[day][i]);
-            if (hasAnyData && monthData.items.length >= 10) {
-                let total = parseFloat(monthData.data[day][0]) || 0;
-                let deductions = 0;
-                for (let i = 1; i <= 6; i++) deductions += parseFloat(monthData.data[day][i]) || 0;
-                let remaining = Math.max(0, total - deductions);
-                let special = parseFloat(monthData.data[day][7]) || 0;
-                let daily = Math.max(0, remaining - special);
-
-                monthData.data[day][8] = daily > 0 ? String(daily).padStart(2, '0') : '';
-                monthData.data[day][9] = remaining > 0 ? String(remaining).padStart(2, '0') : '';
-            }
+            const clean = val.trim();
+            if (!clean) delete monthData.data[day][itemIndex];
+            else monthData.data[day][itemIndex] = clean;
             saveToLocalStorage();
-            renderParadeTable();
         }
 
         function saveParadeReportData() {
-            if (!activeSectionId) return;
-            ensureMonthDataStructure();
-            let monthObj = paradeRecords[activeSectionId][currentYearMonth];
-            const [y, m] = currentYearMonth.split('-');
-            const daysCount = getDaysInMonth(parseInt(y), parseInt(m));
-            const todayDateObj = new Date();
-            const todayStr = todayDateObj.toISOString().split('T')[0];
-            const tomorrowDateObj = new Date(todayDateObj);
-            tomorrowDateObj.setDate(todayDateObj.getDate() + 1);
-            const tomorrowStr = tomorrowDateObj.toISOString().split('T')[0];
-
-            for (let d = 1; d <= daysCount; d++) {
-                let dayStr = String(d).padStart(2, '0');
-                let cellDateStr = `${currentYearMonth}-${dayStr}`;
-                if (cellDateStr <= todayStr || cellDateStr === tomorrowStr) {
-                    monthObj.savedDays[dayStr] = true;
-                }
-            }
             saveToLocalStorage();
-            renderParadeTable();
             alert('දෛනික පෙළපාලි වාර්තාව සාර්ථකව Save කර ඇත!');
         }
 
-        function getDateBgClass(cellDateStr) {
-            let dateObj = new Date(cellDateStr);
-            let dayOfWeek = dateObj.getDay(); // 0: Sunday, 6: Saturday
-            let holiday = specialHolidays2026[cellDateStr];
-
-            if (holiday) {
-                if (holiday.type === 'poya') return 'bg-yellow-200 text-yellow-950 font-bold'; // Poya -> Yellow
-                if (holiday.type === 'holiday') {
-                    if (holiday.name.includes('නත්තල්') || holiday.name.includes('නිදහස්')) return 'bg-blue-200 text-blue-950 font-bold'; // Blue
-                    return 'bg-rose-200 text-rose-950 font-bold'; // Red
-                }
-            }
-            if (dayOfWeek === 0) return 'bg-rose-100 text-rose-950 font-bold'; // Sunday -> Red
-            if (dayOfWeek === 6) return 'bg-gray-200 text-gray-900 font-bold'; // Saturday -> Ash/Gray
-            return '';
-        }
-
-        function getDateTooltip(cellDateStr) {
-            let holiday = specialHolidays2026[cellDateStr];
-            let dateObj = new Date(cellDateStr);
-            let dayOfWeek = dateObj.getDay();
-            let dayNames = ['ඉරිදා', 'සඳුදා', 'අඟහරුවාදා', 'බදාදා', 'බ්‍රහස්පතින්දා', 'සිකුරාදා', 'සෙනසුරාදා'];
-            
-            let info = `${cellDateStr} (${dayNames[dayOfWeek]})`;
-            if (holiday) info += ` - ${holiday.name}`;
-            else if (dayOfWeek === 0) info += ` - ඉරිදා (නිවාඩු දිනය)`;
-            else if (dayOfWeek === 6) info += ` - සෙනසුරාදා`;
-            return info;
-        }
-
         function renderParadeTable() {
-            const tbody = document.getElementById('parade-table-body');
-            const previewBody = document.getElementById('preview-parade-table-body');
             const thead = document.getElementById('edit-table-head');
-            const previewThead = document.getElementById('preview-table-head');
-            if (!tbody || !previewBody) return;
+            const tbody = document.getElementById('parade-table-body');
+            const titleEl = document.getElementById('parade-main-title');
+            if (!thead || !tbody) return;
 
-            ensureMonthDataStructure();
-            let monthObj = paradeRecords[activeSectionId][currentYearMonth];
+            ensureParadeDataStructure();
+            const monthObj = paradeRecords[activeSectionId][currentYearMonth];
             const items = monthObj.items;
             const data = monthObj.data;
-            const signatures = monthObj.signatures;
 
             const [y, m] = currentYearMonth.split('-');
             const daysCount = getDaysInMonth(parseInt(y), parseInt(m));
-            
-            const todayDateObj = new Date();
-            const todayStr = todayDateObj.toISOString().split('T')[0];
-            const tomorrowDateObj = new Date(todayDateObj);
-            tomorrowDateObj.setDate(todayDateObj.getDate() + 1);
-            const tomorrowStr = tomorrowDateObj.toISOString().split('T')[0];
+            const secObj = sections.find(s => s.id === activeSectionId);
+            const secName = secObj ? secObj.name : 'ඉංජිසේමු විනයාරක්ෂක අංශය';
+            titleEl.innerText = `${secName} ${y} ${sinhalaMonths[m] || m} මස දෛනික පෙළපාලි විස්තරය`;
 
-            let editH = `<th class="p-1.5 border-r border-gray-400 font-bold w-9">අ/අ</th><th class="p-1.5 border-r border-gray-400 font-bold min-w-[200px]">විස්තරය</th><th class="p-1.5 border-r border-gray-400 font-bold no-print w-16">කළමනාකරණය</th>`;
-            let prevH = `<th class="p-1 border-r border-gray-800 font-bold w-7">අ/අ</th><th class="p-1 border-r border-gray-800 font-bold w-44">විස්තරය</th>`;
-
-            let dayColorClasses = {};
+            let h = `<th class="p-1.5 border-r border-gray-400 font-bold w-9">අ/අ</th><th class="p-1.5 border-r border-gray-400 font-bold min-w-[200px]">විස්තරය</th>`;
+            let dayColors = {};
             for (let d = 1; d <= daysCount; d++) {
                 let ds = String(d).padStart(2, '0');
-                let cellDateStr = `${currentYearMonth}-${ds}`;
-                let colorCls = getDateBgClass(cellDateStr);
-                let tooltip = getDateTooltip(cellDateStr);
-                dayColorClasses[ds] = colorCls;
-
-                editH += `<th title="${tooltip}" class="p-1 border-r border-gray-400 font-bold w-9 text-[10px] cursor-help ${colorCls}">${ds}</th>`;
-                prevH += `<th title="${tooltip}" class="py-1 px-0.5 border-r border-gray-800 font-bold text-[8px] cursor-help ${colorCls}">${ds}</th>`;
+                let cellDate = `${currentYearMonth}-${ds}`;
+                dayColors[ds] = getDateBgClass(cellDate);
+                h += `<th class="p-1 border-r border-gray-400 font-bold w-9 text-[10px] ${dayColors[ds]}">${ds}</th>`;
             }
-            thead.innerHTML = editH;
-            previewThead.innerHTML = prevH;
+            thead.innerHTML = h;
 
-            let rows = '', prevRows = '';
+            let rows = '';
             items.forEach((itemText, idx) => {
                 let seq = String(idx + 1).padStart(2, '0');
-                let r1 = `<tr class="border-b border-gray-300 text-gray-800 align-middle">
+                let r = `<tr class="border-b border-gray-300 text-gray-800 align-middle">
                     <td class="p-1.5 border-r border-gray-400 font-bold">${seq}</td>
-                    <td class="p-1.5 border-r border-gray-400 text-left px-2 font-bold">${itemText}</td>
-                    <td class="p-1 border-r border-gray-400 no-print whitespace-nowrap">
-                        <button type="button" onclick="moveParadeItem(${idx}, -1)" class="text-gray-500 hover:text-indigo-600 px-1" title="උඩට"><i class="fa-solid fa-arrow-up text-[10px]"></i></button>
-                        <button type="button" onclick="moveParadeItem(${idx}, 1)" class="text-gray-500 hover:text-indigo-600 px-1" title="පහළට"><i class="fa-solid fa-arrow-down text-[10px]"></i></button>
-                        <button type="button" onclick="deleteParadeItem(${idx})" class="text-red-500 hover:text-red-700 px-1" title="ඉවත් කරන්න"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                    </td>`;
-
-                let r2 = `<tr class="border-b border-gray-800 text-gray-800 align-middle">
-                    <td class="p-1 border-r border-gray-800 font-bold">${seq}</td>
-                    <td class="p-1 border-r border-gray-800 text-left px-1.5 font-bold">${itemText}</td>`;
+                    <td class="p-1.5 border-r border-gray-400 text-left px-2 font-bold">${itemText}</td>`;
 
                 for (let d = 1; d <= daysCount; d++) {
                     let ds = String(d).padStart(2, '0');
-                    let cellDateStr = `${currentYearMonth}-${ds}`;
-                    
-                    let hasTotalNum = data[ds]?.[0] && data[ds]?.[0].trim() !== '' && data[ds]?.[0].trim() !== '-';
-                    let rawVal = data[ds]?.[idx];
-
-                    let val = rawVal !== undefined ? rawVal : '';
-                    if (!val) {
-                        if (hasTotalNum || cellDateStr <= todayStr || cellDateStr === tomorrowStr) {
-                            val = '-';
-                        }
-                    }
-
-                    let isAuto = (idx === 8 || idx === 9) && items.length >= 10;
-                    let cellBg = dayColorClasses[ds];
-
-                    r1 += `<td class="p-0.5 border-r border-gray-400 ${cellBg}"><input type="text" value="${val === '-' ? '' : val}" ${isAuto ? 'readonly' : ''} placeholder="${val === '-' ? '-' : ''}" onchange="updateParadeCell('${ds}', ${idx}, this.value)" class="w-full text-center ${isAuto ? 'bg-gray-100 text-indigo-900 font-bold' : 'bg-transparent'} border-0 text-[10px] py-1"></td>`;
-                    r2 += `<td class="py-1 px-0.5 border-r border-gray-800 text-center ${cellBg}">${val}</td>`;
+                    let cellBg = dayColors[ds];
+                    let val = data[ds]?.[idx] || '';
+                    r += `<td class="p-0.5 border-r border-gray-400 ${cellBg}">
+                        <input type="text" value="${val}" onchange="updateParadeCell('${ds}', ${idx}, this.value)" class="w-full text-center bg-transparent border-0 text-[10px] py-1">
+                    </td>`;
                 }
-                rows += r1 + '</tr>';
-                prevRows += r2 + '</tr>';
+                rows += r + '</tr>';
             });
+            tbody.innerHTML = rows;
+        }
 
-            // Signature Row
-            let sigR1 = `<tr class="bg-indigo-50/40 border-b border-gray-400 align-middle">
-                <td class="p-1.5 border-r border-gray-400"></td>
-                <td class="p-2 border-r border-gray-400 text-left px-2 font-bold">අංශභාර ජ්‍යෙකොනොනි අත්සන</td>
-                <td class="no-print border-r border-gray-400"></td>`;
+        // --- LEAVE RECORDS LOGIC ---
+        function handleSaveLeavePerson(e) {
+            e.preventDefault();
+            if (!activeSectionId) return;
+            if (!leaveRecords[activeSectionId]) leaveRecords[activeSectionId] = { persons: [], data: {}, locked: false };
+            
+            const regVal = document.getElementById('lp-reg').value.trim();
+            const exists = leaveRecords[activeSectionId].persons.some(p => p.reg === regVal);
+            if (exists) {
+                alert('මෙම රෙජි අංකය දැනටමත් ඇතුළත් කර ඇත! එකම රෙජි අංකය දෙපාරක් ඇතුළත් කළ නොහැක.');
+                return;
+            }
 
-            let sigR2 = `<tr class="border-b border-gray-800 align-middle h-12">
-                <td class="p-1 border-r border-gray-800"></td>
-                <td class="p-1.5 border-r border-gray-800 text-left px-1.5 font-bold">අංශභාර ජ්‍යෙකොනොනි අත්සන</td>`;
+            const newPerson = {
+                id: Date.now(),
+                reg: regVal,
+                rank: document.getElementById('lp-rank').value.trim(),
+                name: document.getElementById('lp-name').value.trim(),
+                unit: document.getElementById('lp-unit').value.trim()
+            };
+            leaveRecords[activeSectionId].persons.push(newPerson);
+            saveToLocalStorage();
+            renderLeaveTable();
+            closeAddLeavePersonModal();
+        }
 
+        function promptDeletePerson(personId, reg) {
+            pendingDeletePersonId = personId;
+            pendingDeleteReg = reg;
+            document.getElementById('del-reg-target').innerText = reg;
+            document.getElementById('confirm-reg-input').value = "";
+            document.getElementById('delete-person-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() { document.getElementById('delete-person-modal').classList.add('hidden'); }
+
+        function confirmDeletePerson() {
+            const inputVal = document.getElementById('confirm-reg-input').value.trim();
+            if (inputVal !== pendingDeleteReg) {
+                alert('ඇතුළත් කළ රෙජි අංකය වැරදිය! කරුණාකර නිවැරදි රෙජි අංකය ඇතුළත් කරන්න.');
+                return;
+            }
+            leaveRecords[activeSectionId].persons = leaveRecords[activeSectionId].persons.filter(p => p.id !== pendingDeletePersonId);
+            saveToLocalStorage();
+            renderLeaveTable();
+            closeDeleteModal();
+        }
+
+        function movePerson(index, direction) {
+            let persons = leaveRecords[activeSectionId].persons;
+            let targetIdx = index + direction;
+            if (targetIdx < 0 || targetIdx >= persons.length) return;
+            let temp = persons[index];
+            persons[index] = persons[targetIdx];
+            persons[targetIdx] = temp;
+            saveToLocalStorage();
+            renderLeaveTable();
+        }
+
+        function updateLeaveCell(personId, dayStr, val) {
+            if (!activeSectionId) return;
+            if (!leaveRecords[activeSectionId].data[leaveYearMonth]) leaveRecords[activeSectionId].data[leaveYearMonth] = {};
+            if (!leaveRecords[activeSectionId].data[leaveYearMonth][personId]) leaveRecords[activeSectionId].data[leaveYearMonth][personId] = {};
+            
+            const clean = val.trim();
+            if (!clean) delete leaveRecords[activeSectionId].data[leaveYearMonth][personId][dayStr];
+            else leaveRecords[activeSectionId].data[leaveYearMonth][personId][dayStr] = clean;
+            
+            saveToLocalStorage();
+            renderLeaveTable();
+        }
+
+        function toggleSaveLock() {
+            if (!activeSectionId) return;
+            if (!leaveRecords[activeSectionId]) leaveRecords[activeSectionId] = { persons: [], data: {}, locked: false };
+            leaveRecords[activeSectionId].locked = !leaveRecords[activeSectionId].locked;
+            saveToLocalStorage();
+            renderLeaveTable();
+            alert(leaveRecords[activeSectionId].locked ? 'චාර්ට් එක සාර්ථකව Save & Lock කරන ලදී!' : 'චාර්ට් එක Unlock කරන ලදී.');
+        }
+
+        function enableFullEdit() {
+            if (!activeSectionId) return;
+            leaveRecords[activeSectionId].locked = false;
+            saveToLocalStorage();
+            renderLeaveTable();
+        }
+
+        function lockChartAgain() {
+            if (!activeSectionId) return;
+            leaveRecords[activeSectionId].locked = true;
+            saveToLocalStorage();
+            renderLeaveTable();
+        }
+
+        function downloadChartAsJPG() {
+            const reportElement = document.getElementById('printable-leave-report');
+            document.querySelectorAll('.action-col').forEach(el => el.classList.add('hidden'));
+            html2canvas(reportElement, { scale: 2, useCORS: true }).then(canvas => {
+                document.querySelectorAll('.action-col').forEach(el => el.classList.remove('hidden'));
+                let link = document.createElement('a');
+                link.download = `Leave_Report_${leaveYearMonth}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 1.0);
+                link.click();
+                closeDownloadModal();
+            });
+        }
+
+        function renderLeaveTable() {
+            const thead = document.getElementById('leave-table-head');
+            const tbody = document.getElementById('leave-table-body');
+            const titleEl = document.getElementById('leave-report-title');
+            const summaryContainer = document.getElementById('summary-text-container');
+            const saveBtn = document.getElementById('save-lock-btn');
+            const editIndicator = document.getElementById('edit-mode-indicator');
+            const unlockBtn = document.getElementById('unlock-pencil-btn');
+
+            if (!thead || !tbody) return;
+
+            const recordObj = leaveRecords[activeSectionId] || { persons: [], data: {}, locked: false };
+            const isLocked = recordObj.locked;
+
+            if (isLocked) {
+                saveBtn.innerText = "Locked";
+                saveBtn.classList.replace("bg-indigo-600", "bg-gray-500");
+                editIndicator.classList.add('hidden');
+                unlockBtn.classList.remove('hidden');
+            } else {
+                saveBtn.innerText = "Save & Lock";
+                saveBtn.classList.replace("bg-gray-500", "bg-indigo-600");
+                editIndicator.classList.remove('hidden');
+                unlockBtn.classList.add('hidden');
+            }
+
+            const [y, m] = leaveYearMonth.split('-');
+            const daysCount = getDaysInMonth(parseInt(y), parseInt(m));
+            const monthName = sinhalaMonths[m] || m;
+            const secObj = sections.find(s => s.id === activeSectionId);
+            const secName = secObj ? secObj.name : 'ඉංජිසේමු විනයාරක්ෂක අංශය';
+            titleEl.innerText = `${secName} ${y} ${monthName} මස නිවාඩු දින සටහන`;
+
+            let h = `<th class="p-1.5 border-r border-gray-400 font-bold w-9">අ/අ</th>
+                     <th class="p-1.5 border-r border-gray-400 font-bold w-24">රෙජි අංකය</th>
+                     <th class="p-1.5 border-r border-gray-400 font-bold w-20">නිලය</th>
+                     <th class="p-1.5 border-r border-gray-400 font-bold w-28">නම</th>
+                     <th class="p-1.5 border-r border-gray-400 font-bold w-20">ඒකකය</th>`;
+
+            let dayColors = {};
             for (let d = 1; d <= daysCount; d++) {
                 let ds = String(d).padStart(2, '0');
-                let cellDateStr = `${currentYearMonth}-${ds}`;
-                let sig = signatures[ds];
-                let content = sig ? `${sig.img ? `<img src="${sig.img}" class="max-h-6 max-w-full object-contain mx-auto">` : ''}${sig.venuwata ? '<span class="block text-[6px] text-gray-800">(වෙනුවට)</span>' : ''}` : '';
-                let cellBg = dayColorClasses[ds];
-
-                sigR1 += `<td onclick="openDailySigModal('${ds}')" class="p-0.5 border-r border-gray-400 h-11 cursor-pointer hover:bg-indigo-100 text-center align-middle ${cellBg}">${content || '<span class="text-[9px] text-gray-300"><i class="fa-solid fa-pen-nib"></i></span>'}</td>`;
-                sigR2 += `<td class="p-0.5 border-r border-gray-800 text-center align-middle ${cellBg}">${content}</td>`;
+                let cellDate = `${leaveYearMonth}-${ds}`;
+                dayColors[ds] = getDateBgClass(cellDate);
+                h += `<th class="p-1 border-r border-gray-400 font-bold w-9 text-[10px] ${dayColors[ds]}">${ds}</th>`;
             }
-            tbody.innerHTML = rows + sigR1 + '</tr>';
-            previewBody.innerHTML = prevRows + sigR2 + '</tr>';
-            updateSinhalaMonthDisplay(currentYearMonth);
-        }
+            h += `<th class="no-print action-col p-1 font-bold w-20">Action / Move</th>`;
+            thead.innerHTML = h;
 
-        function printPDF() { window.print(); }
-        function printParadePDF() { window.print(); }
+            const persons = recordObj.persons || [];
+            const monthData = recordObj.data?.[leaveYearMonth] || {};
 
-        function downloadJPG() {
-            const el = document.getElementById('printable-report');
-            const tr = el.style.transform, sh = el.style.boxShadow, bd = el.style.border;
-            el.style.transform = 'scale(1)'; el.style.boxShadow = 'none'; el.style.border = 'none';
-            html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-                el.style.transform = tr; el.style.boxShadow = sh; el.style.border = bd;
-                const link = document.createElement('a'); link.download = `Vehicle_Report_${currentDate}.jpg`; link.href = canvas.toDataURL('image/jpeg', 1.0); link.click();
+            if (persons.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${daysCount + 6}" class="p-6 text-center text-gray-400">තවමත් කිසිදු සාමාජිකයෙක් එකතු කර නොමැත.</td></tr>`;
+                summaryContainer.innerHTML = `<p class="text-gray-400">දත්ත නොමැත.</p>`;
+                return;
+            }
+
+            let rows = '';
+            let summaryHTML = '';
+
+            persons.forEach((p, idx) => {
+                let pData = monthData[p.id] || {};
+                let currentCount = 1;
+                let countsArray = [];
+                let totalL = 0, totalP = 0, totalLO = 0;
+                let attendanceCount = 0;
+
+                for (let d = 1; d <= daysCount; d++) {
+                    let ds = String(d).padStart(2, '0');
+                    let val = (pData[ds] || '').trim().toUpperCase();
+                    
+                    if (val === 'L') { totalL++; currentCount = 1; countsArray.push('L'); }
+                    else if (val === 'P') { totalP++; countsArray.push('P'); }
+                    else if (val === 'L/O') { totalLO++; countsArray.push('L/O'); }
+                    else {
+                        countsArray.push(currentCount);
+                        if (val !== '') attendanceCount++;
+                        currentCount++;
+                    }
+                }
+
+                summaryHTML += `<p>• ${p.rank} ${p.name} (${p.reg}) : පැමිණි දින ගණන (Attendance) : ${attendanceCount} (L:${totalL} | P:${totalP} | L/O:${totalLO})</p>`;
+
+                let r = `<tr class="border-b border-gray-300 text-gray-800 align-middle">
+                    <td class="p-1.5 border-r border-gray-400 font-bold">${String(idx + 1).padStart(2, '0')}</td>
+                    <td class="p-1.5 border-r border-gray-400 font-semibold">${p.reg}</td>
+                    <td class="p-1.5 border-r border-gray-400">${p.rank}</td>
+                    <td class="p-1.5 border-r border-gray-400 font-bold text-left px-2">${p.name}</td>
+                    <td class="p-1.5 border-r border-gray-400">${p.unit}</td>`;
+
+                for (let d = 1; d <= daysCount; d++) {
+                    let ds = String(d).padStart(2, '0');
+                    let displayVal = countsArray[d - 1];
+                    let isLetter = (displayVal === 'L' || displayVal === 'P' || displayVal === 'L/O');
+                    let cellBg = dayColors[ds];
+
+                    let inputDisabled = isLocked ? 'disabled' : '';
+                    r += `<td class="p-0.5 border-r border-gray-400 ${cellBg}">
+                        <input type="text" value="${pData[ds] || ''}" onchange="updateLeaveCell(${p.id}, '${ds}', this.value)" 
+                        placeholder="${displayVal}" ${inputDisabled} class="w-full text-center bg-transparent border-0 text-[10px] font-bold ${isLetter ? 'text-red-600' : 'text-gray-800'} py-1">
+                    </td>`;
+                }
+
+                let moveButtons = ``;
+                if (!isLocked) {
+                    moveButtons = `<div class="no-print action-col flex items-center justify-center space-x-1">
+                        <button onclick="movePerson(${idx}, -1)" class="text-indigo-600 hover:text-indigo-800 px-1 font-bold text-xs hover:bg-indigo-50 rounded" title="ඉහළට"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="movePerson(${idx}, 1)" class="text-indigo-600 hover:text-indigo-800 px-1 font-bold text-xs hover:bg-indigo-50 rounded" title="පහළට"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="promptDeletePerson(${p.id}, '${p.reg}')" class="text-red-500 hover:text-red-700 px-1 text-xs" title="ඉවත් කරන්න"><i class="fa-solid fa-trash"></i></button>
+                    </div>`;
+                } else {
+                    moveButtons = `<span class="no-print action-col text-gray-400 text-[10px]">Locked</span>`;
+                }
+
+                r += `<td class="p-1">${moveButtons}</td>`;
+                rows += r + '</tr>';
             });
+            tbody.innerHTML = rows;
+            summaryContainer.innerHTML = summaryHTML;
         }
 
-        function downloadParadeJPG() {
-            const el = document.getElementById('printable-parade-report');
-            const tr = el.style.transform, sh = el.style.boxShadow, bd = el.style.border;
-            el.style.transform = 'scale(1)'; el.style.boxShadow = 'none'; el.style.border = 'none';
-            html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-                el.style.transform = tr; el.style.boxShadow = sh; el.style.border = bd;
-                const link = document.createElement('a'); link.download = `Parade_Report_${currentYearMonth}.jpg`; link.href = canvas.toDataURL('image/jpeg', 1.0); link.click();
-            });
-        }
+        function renderVehicleTable() {}
     </script>
 </body>
 </html>
